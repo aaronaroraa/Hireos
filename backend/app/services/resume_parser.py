@@ -1,15 +1,6 @@
 import fitz  # PyMuPDF
-import spacy
 import re
 from io import BytesIO
-
-# Load lightweight spaCy English model for NER
-try:
-    nlp = spacy.load("en_core_web_sm")
-except OSError:
-    import spacy.cli
-    spacy.cli.download("en_core_web_sm")
-    nlp = spacy.load("en_core_web_sm")
 
 KNOWN_SKILLS = {
     "python", "java", "javascript", "typescript", "c++", "c#", "ruby", "go",
@@ -44,43 +35,58 @@ def extract_skills(text: str) -> list[str]:
             
     return sorted(list(found_skills))
 
-def extract_education(doc) -> str:
-    """Use heuristic and NER to find education-related entities."""
-    edu_keywords = ["university", "college", "institute", "bachelor", "master", "phd", "bsc", "msc"]
-    for ent in doc.ents:
-        if ent.label_ == "ORG":
-            if any(keyword in ent.text.lower() for keyword in edu_keywords):
-                return ent.text.strip()
+def extract_education(text: str) -> str:
+    """Use regex to find education-related information."""
+    edu_keywords = [
+        r"university", r"college", r"institute", r"bachelor", r"master",
+        r"phd", r"bsc", r"msc", r"b\.tech", r"m\.tech", r"b\.e\.", r"m\.e\.",
+        r"b\.sc", r"m\.sc", r"mba", r"bba", r"diploma"
+    ]
+    pattern = re.compile(
+        r'(?:.*(?:' + '|'.join(edu_keywords) + r').*)',
+        re.IGNORECASE
+    )
+    matches = pattern.findall(text)
+    if matches:
+        # Return the first meaningful match, cleaned up
+        return matches[0].strip()[:200]
     return "Not explicitly found"
 
-def extract_experience_years(doc) -> float:
-    """Estimate experience years by counting date entities (very rough proxy without LLM)."""
-    # An LLM is required for highly accurate chronological mapping.
-    # We fallback to a heuristic proxy based on DATE tags for now.
-    dates = [ent.text for ent in doc.ents if ent.label_ == "DATE"]
-    if len(dates) > 0:
-        return round(float(len(dates)) * 0.5, 1)  # Heuristic mockup
+def extract_experience_years(text: str) -> float:
+    """Estimate experience years from text using regex patterns."""
+    # Look for patterns like "5 years", "3+ years", "5 yrs"
+    patterns = [
+        r'(\d+)\+?\s*(?:years?|yrs?)\s*(?:of)?\s*(?:experience|exp)?',
+        r'experience\s*(?:of)?\s*(\d+)\+?\s*(?:years?|yrs?)',
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            return float(match.group(1))
+    
+    # Fallback: count year mentions as a rough proxy
+    year_matches = re.findall(r'\b20[0-2]\d\b', text)
+    if len(year_matches) >= 2:
+        years = sorted([int(y) for y in year_matches])
+        return float(years[-1] - years[0])
+    
     return 0.0
 
 def parse_resume(pdf_bytes: bytes) -> dict:
     """
     Orchestrates the resume parsing pipeline:
     1. Extract plain text from PDF bytes.
-    2. Run spaCy NLP processing on the text.
-    3. Extract metadata natively.
+    2. Extract metadata using regex patterns.
     """
     raw_text = extract_text_from_pdf(pdf_bytes)
     
-    # Process text using spaCy
-    doc = nlp(raw_text)
-    
     skills = extract_skills(raw_text)
-    education = extract_education(doc)
-    experience = extract_experience_years(doc)
+    education = extract_education(raw_text)
+    experience = extract_experience_years(raw_text)
     
     return {
         "extracted_skills": skills,
         "experience_years": experience,
         "education": education,
-        "raw_text": raw_text[:500] + "..." # Snippet for sanity check
+        "raw_text": raw_text[:500] + "..."  # Snippet for sanity check
     }
