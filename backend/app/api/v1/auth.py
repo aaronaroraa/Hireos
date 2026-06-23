@@ -141,3 +141,57 @@ def forgot_password(payload: UserForgotPassword, db: Session = Depends(get_db)):
     print(f"{'='*50}\n")
     
     return {"message": "If that email is in our database, we have sent a password reset link."}
+
+
+@router.post("/demo-login")
+def demo_login(db: Session = Depends(get_db)):
+    """
+    One-click demo access. Auto-creates a demo company + user if they
+    don't exist, then returns a valid JWT token pair.
+    No password required — perfect for portfolio demos.
+    """
+    DEMO_EMAIL = "demo@recruitmentos.ai"
+    DEMO_NAME = "Demo Admin"
+    DEMO_COMPANY = "Acme Corp (Demo)"
+
+    # Find or create the demo user
+    user = db.query(User).filter(User.email == DEMO_EMAIL).first()
+
+    if not user:
+        # Create demo company
+        demo_company = Company(name=DEMO_COMPANY)
+        db.add(demo_company)
+        db.flush()
+
+        # Create demo user with a random hashed password (never used)
+        user = User(
+            company_id=demo_company.id,
+            name=DEMO_NAME,
+            email=DEMO_EMAIL,
+            password_hash=get_password_hash("DemoMode!SecureRandom#2026"),
+            role="Admin",
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    token_data = {
+        "sub": user.email,
+        "user_id": user.id,
+        "company_id": user.company_id,
+        "role": user.role,
+    }
+
+    return {
+        "access_token": create_access_token(data=token_data),
+        "refresh_token": create_refresh_token(data=token_data),
+        "token_type": "bearer",
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "name": user.name,
+            "company_id": user.company_id,
+            "role": user.role,
+        },
+    }
+
