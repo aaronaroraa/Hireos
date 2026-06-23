@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import {
-    Settings, User, Shield, Bell, Key, Building2, Palette, Globe, Save, Check, Loader2
+    User, Shield, Bell, Key, Building2, Save, Check, Loader2
 } from 'lucide-react';
 
 export const SettingsPage: React.FC = () => {
@@ -57,8 +57,8 @@ export const SettingsPage: React.FC = () => {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`w-full flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeTab === tab.id
-                                        ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
-                                        : 'text-slate-600 hover:bg-slate-50 border border-transparent'
+                                    ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                                    : 'text-slate-600 hover:bg-slate-50 border border-transparent'
                                     }`}
                             >
                                 <tab.icon className="w-5 h-5 mr-3" />

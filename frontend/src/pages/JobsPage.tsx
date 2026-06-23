@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../lib/api';
-import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Briefcase, Plus, Loader2, X, ChevronRight, Clock, Users, Star,
-    Sparkles, Search, Filter, MoreHorizontal, Eye, Trash2, Edit3
+    Briefcase, Plus, Loader2, X,
+    Sparkles, Search,
 } from 'lucide-react';
 
 interface Job {
@@ -17,7 +16,6 @@ interface Job {
 }
 
 export const JobsPage: React.FC = () => {
-    const { user } = useAuth();
     const [jobs, setJobs] = useState<Job[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -148,8 +146,8 @@ export const JobsPage: React.FC = () => {
                             transition={{ duration: 0.3, delay: i * 0.05 }}
                             onClick={() => setSelectedJob(selectedJob?.id === job.id ? null : job)}
                             className={`bg-white rounded-2xl border p-6 cursor-pointer transition-all duration-300 hover:shadow-premium-hover hover:-translate-y-1 ${selectedJob?.id === job.id
-                                    ? 'border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.15)]'
-                                    : 'border-slate-200/60 shadow-premium'
+                                ? 'border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.15)]'
+                                : 'border-slate-200/60 shadow-premium'
                                 }`}
                         >
                             <div className="flex items-start justify-between mb-4">

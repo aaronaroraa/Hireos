@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Users, Search, Loader2, ChevronDown, ChevronRight, Star, Mail, Phone,
-    FileText, Filter, ArrowUpDown, UserCheck, UserX, Clock, Award
+    Users, Search, Loader2, ChevronDown, Star, Mail, Clock, Award
 } from 'lucide-react';
 
 interface Candidate {
@@ -129,8 +128,8 @@ export const CandidatesPage: React.FC = () => {
                         key={stage}
                         onClick={() => setStageFilter(stage)}
                         className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all border ${stageFilter === stage
-                                ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                            : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
                             }`}
                     >
                         {stage}
@@ -223,7 +222,7 @@ export const CandidatesPage: React.FC = () => {
                                 <div className="flex items-center gap-4">
                                     {c.ai_score != null && (
                                         <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold text-sm ${c.ai_score >= 80 ? 'bg-emerald-50 text-emerald-700' :
-                                                c.ai_score >= 60 ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'
+                                            c.ai_score >= 60 ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'
                                             }`}>
                                             <Star className="w-4 h-4" />{c.ai_score}
                                         </div>
@@ -293,8 +292,8 @@ export const CandidatesPage: React.FC = () => {
                                                             onClick={() => handleStatusChange(c.id, s)}
                                                             disabled={c.status === s}
                                                             className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all border ${c.status === s
-                                                                    ? 'bg-indigo-600 text-white border-indigo-600'
-                                                                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                                                                ? 'bg-indigo-600 text-white border-indigo-600'
+                                                                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
                                                                 }`}
                                                         >
                                                             {s}
