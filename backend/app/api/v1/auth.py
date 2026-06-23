@@ -150,48 +150,59 @@ def demo_login(db: Session = Depends(get_db)):
     don't exist, then returns a valid JWT token pair.
     No password required — perfect for portfolio demos.
     """
-    DEMO_EMAIL = "demo@recruitmentos.ai"
-    DEMO_NAME = "Demo Admin"
-    DEMO_COMPANY = "Acme Corp (Demo)"
+    from fastapi.responses import JSONResponse
+    import traceback
+    try:
+        DEMO_EMAIL = "demo@recruitmentos.ai"
+        DEMO_NAME = "Demo Admin"
+        DEMO_COMPANY = "Acme Corp (Demo)"
 
-    # Find or create the demo user
-    user = db.query(User).filter(User.email == DEMO_EMAIL).first()
+        # Find or create the demo user
+        user = db.query(User).filter(User.email == DEMO_EMAIL).first()
 
-    if not user:
-        # Create demo company
-        demo_company = Company(name=DEMO_COMPANY)
-        db.add(demo_company)
-        db.flush()
+        if not user:
+            # Create demo company
+            demo_company = Company(name=DEMO_COMPANY)
+            db.add(demo_company)
+            db.flush()
 
-        # Create demo user with a random hashed password (never used)
-        user = User(
-            company_id=demo_company.id,
-            name=DEMO_NAME,
-            email=DEMO_EMAIL,
-            password_hash=get_password_hash("DemoMode!SecureRandom#2026"),
-            role="Admin",
-        )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
+            # Create demo user with a random hashed password (never used)
+            user = User(
+                company_id=demo_company.id,
+                name=DEMO_NAME,
+                email=DEMO_EMAIL,
+                password_hash=get_password_hash("DemoMode!SecureRandom#2026"),
+                role="Admin",
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
 
-    token_data = {
-        "sub": user.email,
-        "user_id": user.id,
-        "company_id": user.company_id,
-        "role": user.role,
-    }
-
-    return {
-        "access_token": create_access_token(data=token_data),
-        "refresh_token": create_refresh_token(data=token_data),
-        "token_type": "bearer",
-        "user": {
-            "id": user.id,
-            "email": user.email,
-            "name": user.name,
+        token_data = {
+            "sub": user.email,
+            "user_id": user.id,
             "company_id": user.company_id,
             "role": user.role,
-        },
-    }
+        }
+
+        return {
+            "access_token": create_access_token(data=token_data),
+            "refresh_token": create_refresh_token(data=token_data),
+            "token_type": "bearer",
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "name": user.name,
+                "company_id": user.company_id,
+                "role": user.role,
+            },
+        }
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "detail": f"Demo Login Failed: {str(e)}",
+                "traceback": traceback.format_exc()
+            }
+        )
 
