@@ -1,7 +1,9 @@
 """
 Auth API — registration, login, token refresh.
 """
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from jose import JWTError
 
@@ -15,6 +17,7 @@ from app.core.security import (
     create_refresh_token,
     decode_token,
 )
+from app.core.config import settings
 
 router = APIRouter()
 
@@ -131,7 +134,13 @@ def forgot_password(payload: UserForgotPassword, db: Session = Depends(get_db)):
         return {"message": "If that email is in our database, we have sent a password reset link."}
     
     from datetime import timedelta
-    reset_token = create_access_token(data={"sub": user.email, "type": "reset"}, expires_delta=timedelta(minutes=15))
+    from jose import jwt as _jwt  # noqa: F401 — local alias to avoid name collision with create_access_token
+    _reset_payload = {
+        "sub": user.email,
+        "type": "reset",
+        "exp": datetime.utcnow() + timedelta(minutes=15),
+    }
+    reset_token = _jwt.encode(_reset_payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
     
     print(f"\n{'='*50}")
     print(f"MOCK EMAIL DISPATCHED TO: {user.email}")
@@ -141,6 +150,41 @@ def forgot_password(payload: UserForgotPassword, db: Session = Depends(get_db)):
     print(f"{'='*50}\n")
     
     return {"message": "If that email is in our database, we have sent a password reset link."}
+
+
+_me_security_scheme = HTTPBearer(auto_error=False)
+
+
+@router.get("/me")
+def get_me(
+    credentials: HTTPAuthorizationCredentials = Depends(_me_security_scheme),
+    db: Session = Depends(get_db),
+):
+    """Return the current user's profile (used by frontend after login)."""
+    if not credentials:
+        raise HTTPException(status_code=401, detail="Not authenticated.")
+    try:
+        payload = decode_token(credentials.credentials)
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token.")
+
+    if payload.get("type") != "access":
+        raise HTTPException(status_code=401, detail="Invalid token type.")
+
+    user_id = payload.get("user_id")
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found.")
+
+    company = db.query(Company).filter(Company.id == user.company_id).first()
+    return {
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "company_id": user.company_id,
+        "company_name": company.name if company else "",
+        "role": user.role,
+    }
 
 
 @router.post("/demo-login")

@@ -11,6 +11,9 @@ class Company(Base):
     id = Column(String(36), primary_key=True, default=generate_uuid)
     name = Column(String(255), nullable=False)
     subscription_tier = Column(String(50), default="Startup")
+    # ── Agent persona (configurable per company; defaults to the HireOS brand) ──
+    agent_name = Column(String(120), default="HireOS")
+    agent_tagline = Column(String(120), default="AI Hiring Platform")
     created_at = Column(DateTime, default=datetime.utcnow)
     
 class User(Base):

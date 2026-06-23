@@ -57,12 +57,38 @@ async def upload_resume(
         # Parse
         parsed_data = parse_resume(contents)
 
-        # Derive name from filename as fallback
+        # Extract email from resume text for deduplication
+        import re as _re
+        email_match = _re.search(r'[\w.+-]+@[\w-]+\.[a-zA-Z]{2,}', parsed_data.get("raw_text", ""))
+        extracted_email = email_match.group(0).lower() if email_match else None
+
+        # Deduplicate: if a candidate with this email already exists for this job, update them
+        existing = None
+        if extracted_email:
+            existing = db.query(Candidate).filter(
+                Candidate.email == extracted_email,
+                Candidate.job_id == job_id,
+            ).first()
+
         derived_name = file.filename.replace(".pdf", "").replace("_", " ").title()
+
+        if existing:
+            existing.resume_text = parsed_data.get("raw_text", "")
+            existing.parsed_skills = parsed_data.get("extracted_skills", [])
+            existing.experience_years = parsed_data.get("experience_years", 0)
+            existing.education = parsed_data.get("education", "")
+            db.commit()
+            db.refresh(existing)
+            return {
+                "message": "Resume updated for existing candidate",
+                "candidate_id": existing.id,
+                "parsed_data": parsed_data,
+            }
 
         db_candidate = Candidate(
             job_id=job_id,
             name=derived_name,
+            email=extracted_email,
             status="Applied",
             parsed_skills=parsed_data.get("extracted_skills", []),
             experience_years=parsed_data.get("experience_years", 0),

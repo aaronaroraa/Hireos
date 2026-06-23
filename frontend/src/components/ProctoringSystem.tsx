@@ -96,7 +96,7 @@ export const ProctoringSystem: React.FC<ProctoringSystemProps> = ({ onViolation,
             <motion.div 
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="relative bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border-2 border-slate-700/50 w-64 aspect-video"
+                className="relative bg-slate-900 rounded-2xl overflow-hidden border-2 border-slate-700/50 w-64 aspect-video"
             >
                 {hasPermission === false ? (
                     <div className="flex flex-col items-center justify-center h-full p-4 text-center">
@@ -116,12 +116,12 @@ export const ProctoringSystem: React.FC<ProctoringSystemProps> = ({ onViolation,
                             </div>
                             
                             <div className="absolute top-3 right-3">
-                                <Cpu className="w-4 h-4 text-indigo-400 opacity-50" />
+                                <Cpu className="w-4 h-4 text-gray-400 opacity-50" />
                             </div>
 
-                            <div className="absolute bottom-3 left-3 right-3 h-0.5 bg-white/10 overflow-hidden rounded-full">
+                            <div className="absolute bottom-3 left-3 right-3 h-0.5 bg-white overflow-hidden rounded-full">
                                 <motion.div 
-                                    className="h-full bg-indigo-500" 
+                                    className="h-full bg-gray-500" 
                                     animate={{ width: movementDetected ? '100%' : '0%' }}
                                 />
                             </div>
@@ -132,7 +132,7 @@ export const ProctoringSystem: React.FC<ProctoringSystemProps> = ({ onViolation,
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0 }}
-                                        className="absolute inset-0 flex items-center justify-center bg-rose-500/20 backdrop-blur-[1px]"
+                                        className="absolute inset-0 flex items-center justify-center bg-rose-500/20[1px]"
                                     >
                                         <div className="flex items-center space-x-2 bg-rose-600 text-white px-3 py-1 rounded-full border border-rose-400">
                                             <ShieldAlert className="w-3 h-3" />
@@ -146,12 +146,12 @@ export const ProctoringSystem: React.FC<ProctoringSystemProps> = ({ onViolation,
                 )}
             </motion.div>
             
-            <div className="mt-3 bg-white/10 backdrop-blur-md rounded-xl px-4 py-2 border border-white/20 flex items-center justify-between">
+            <div className="mt-3 bg-white rounded-xl px-4 py-2 border border-white/20 flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-indigo-500 rounded-full" />
+                    <div className="w-2 h-2 bg-gray-500 rounded-full" />
                     <span className="text-[10px] text-white font-bold opacity-70">AI MONITORING</span>
                 </div>
-                <span className="text-[10px] font-mono text-indigo-200 uppercase">SYS_STABLE</span>
+                <span className="text-[10px] font-mono text-gray-200 uppercase">SYS_STABLE</span>
             </div>
         </div>
     );

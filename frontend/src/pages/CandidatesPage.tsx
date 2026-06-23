@@ -31,8 +31,8 @@ interface Job {
 const STATUS_COLORS: Record<string, string> = {
     Applied: 'bg-blue-50 text-blue-700 border-blue-200',
     Screening: 'bg-amber-50 text-amber-700 border-amber-200',
-    Assessment: 'bg-purple-50 text-purple-700 border-purple-200',
-    Interview: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    Assessment: 'bg-gray-50 text-gray-700 border-gray-200',
+    Interview: 'bg-gray-50 text-gray-700 border-gray-200',
     Offer: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     Rejected: 'bg-red-50 text-red-700 border-red-200',
 };
@@ -132,7 +132,7 @@ export const CandidatesPage: React.FC = () => {
 
     if (jobsLoading) return (
         <div className="flex items-center justify-center min-h-[400px]">
-            <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+            <Loader2 className="w-8 h-8 text-gray-500 animate-spin" />
         </div>
     );
 
@@ -140,17 +140,17 @@ export const CandidatesPage: React.FC = () => {
         <div>
             {/* Header */}
             <div className="mb-8">
-                <h1 className="text-4xl font-display font-black text-slate-900 tracking-tight text-glow">Candidates</h1>
-                <p className="text-slate-500 mt-2 font-medium">Track and manage candidates across all pipeline stages.</p>
+                <h1 className="text-4xl font-display font-black text-gray-900 tracking-tight text-glow">Candidates</h1>
+                <p className="text-gray-500 mt-2 font-medium">Track and manage candidates across all pipeline stages.</p>
             </div>
 
             {/* Job Selector */}
             <div className="mb-6">
-                <label className="block text-sm font-medium text-slate-700 mb-2">Select Job</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Select Job</label>
                 <select
                     value={selectedJobId}
                     onChange={e => setSelectedJobId(e.target.value)}
-                    className="w-full max-w-md px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white appearance-none cursor-pointer"
+                    className="w-full max-w-md px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none bg-white appearance-none cursor-pointer"
                 >
                     <option value="">Choose a job...</option>
                     {jobs.map(j => <option key={j.id} value={j.id}>{j.title}</option>)}
@@ -164,12 +164,12 @@ export const CandidatesPage: React.FC = () => {
                         key={stage}
                         onClick={() => setStageFilter(stage)}
                         className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all border ${stageFilter === stage
-                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                            : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                            ? 'bg-gray-600 text-white border-gray-600 shadow-sm'
+                            : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                             }`}
                     >
                         {stage}
-                        <span className={`ml-2 px-1.5 py-0.5 rounded-md text-xs ${stageFilter === stage ? 'bg-white/20' : 'bg-slate-100'
+                        <span className={`ml-2 px-1.5 py-0.5 rounded-md text-xs ${stageFilter === stage ? 'bg-white' : 'bg-gray-100'
                             }`}>
                             {stageCounts[stage] || 0}
                         </span>
@@ -180,19 +180,19 @@ export const CandidatesPage: React.FC = () => {
             {/* Search + Sort */}
             <div className="flex gap-4 mb-6">
                 <div className="relative flex-1">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
                         type="text"
                         placeholder="Search by name or email..."
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none bg-white"
+                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all outline-none bg-white"
                     />
                 </div>
                 <select
                     value={sortBy}
                     onChange={e => setSortBy(e.target.value as any)}
-                    className="px-4 py-3 rounded-xl border border-slate-200 bg-white outline-none cursor-pointer"
+                    className="px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none cursor-pointer"
                 >
                     <option value="score">Sort by Score</option>
                     <option value="name">Sort by Name</option>
@@ -203,21 +203,21 @@ export const CandidatesPage: React.FC = () => {
             {/* Candidate List */}
             {!selectedJobId ? (
                 <div className="text-center py-20">
-                    <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-slate-700 mb-2">Select a job to view candidates</h3>
-                    <p className="text-slate-500">Choose a job from the dropdown above.</p>
+                    <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-700 mb-2">Select a job to view candidates</h3>
+                    <p className="text-gray-500">Choose a job from the dropdown above.</p>
                 </div>
             ) : loading ? (
                 <div className="flex items-center justify-center py-20">
-                    <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                    <Loader2 className="w-8 h-8 text-gray-500 animate-spin" />
                 </div>
             ) : filtered.length === 0 ? (
                 <div className="text-center py-20">
-                    <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-slate-700 mb-2">
+                    <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-700 mb-2">
                         {candidates.length === 0 ? 'No candidates yet' : 'No matches found'}
                     </h3>
-                    <p className="text-slate-500">
+                    <p className="text-gray-500">
                         {candidates.length === 0 ? 'Upload resumes or run a bulk hire campaign.' : 'Try adjusting your filters.'}
                     </p>
                 </div>
@@ -236,21 +236,21 @@ export const CandidatesPage: React.FC = () => {
                                 onClick={() => setExpandedId(expandedId === c.id ? null : c.id)}
                             >
                                 {/* Avatar */}
-                                <div className="w-10 h-10 bg-gradient-to-br from-brand-400 to-violet-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-inner">
+                                <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white font-bold text-sm">
                                     {c.name.charAt(0)}
                                 </div>
 
                                 {/* Info */}
                                 <div className="ml-4 flex-1 min-w-0">
                                     <div className="flex items-center gap-3">
-                                        <span className="font-semibold text-slate-900">{c.name}</span>
-                                        <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium border ${STATUS_COLORS[c.status] || 'bg-slate-50 text-slate-600 border-slate-200'}`}>
+                                        <span className="font-semibold text-gray-900">{c.name}</span>
+                                        <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium border ${STATUS_COLORS[c.status] || 'bg-gray-50 text-gray-600 border-gray-200'}`}>
                                             {c.status}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-4 mt-1">
-                                        {c.email && <span className="text-sm text-slate-500 flex items-center"><Mail className="w-3.5 h-3.5 mr-1" />{c.email}</span>}
-                                        {c.experience_years && <span className="text-sm text-slate-500 flex items-center"><Clock className="w-3.5 h-3.5 mr-1" />{c.experience_years}y exp</span>}
+                                        {c.email && <span className="text-sm text-gray-500 flex items-center"><Mail className="w-3.5 h-3.5 mr-1" />{c.email}</span>}
+                                        {c.experience_years && <span className="text-sm text-gray-500 flex items-center"><Clock className="w-3.5 h-3.5 mr-1" />{c.experience_years}y exp</span>}
                                     </div>
                                 </div>
 
@@ -263,7 +263,7 @@ export const CandidatesPage: React.FC = () => {
                                             <Star className="w-4 h-4" />{c.ai_score}
                                         </div>
                                     )}
-                                    <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${expandedId === c.id ? 'rotate-180' : ''}`} />
+                                    <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${expandedId === c.id ? 'rotate-180' : ''}`} />
                                 </div>
                             </div>
 
@@ -276,33 +276,33 @@ export const CandidatesPage: React.FC = () => {
                                         exit={{ opacity: 0, height: 0 }}
                                         className="px-6 pb-5 overflow-hidden"
                                     >
-                                        <div className="pt-3 border-t border-slate-100">
+                                        <div className="pt-3 border-t border-gray-100">
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                                                 {c.education && (
-                                                    <div className="bg-slate-50 rounded-lg p-3">
-                                                        <p className="text-xs text-slate-500 font-medium mb-1">Education</p>
-                                                        <p className="text-sm text-slate-800">{c.education}</p>
+                                                    <div className="bg-gray-50 rounded-lg p-3">
+                                                        <p className="text-xs text-gray-500 font-medium mb-1">Education</p>
+                                                        <p className="text-sm text-gray-800">{c.education}</p>
                                                     </div>
                                                 )}
                                                 {c.current_company && (
-                                                    <div className="bg-slate-50 rounded-lg p-3">
-                                                        <p className="text-xs text-slate-500 font-medium mb-1">Current Company</p>
-                                                        <p className="text-sm text-slate-800">{c.current_company}</p>
+                                                    <div className="bg-gray-50 rounded-lg p-3">
+                                                        <p className="text-xs text-gray-500 font-medium mb-1">Current Company</p>
+                                                        <p className="text-sm text-gray-800">{c.current_company}</p>
                                                     </div>
                                                 )}
-                                                <div className="bg-slate-50 rounded-lg p-3">
-                                                    <p className="text-xs text-slate-500 font-medium mb-1">Source</p>
-                                                    <p className="text-sm text-slate-800 capitalize">{c.source || 'manual'}</p>
+                                                <div className="bg-gray-50 rounded-lg p-3">
+                                                    <p className="text-xs text-gray-500 font-medium mb-1">Source</p>
+                                                    <p className="text-sm text-gray-800 capitalize">{c.source || 'manual'}</p>
                                                 </div>
                                             </div>
 
                                             {/* Skills */}
                                             {c.parsed_skills && c.parsed_skills.length > 0 && (
                                                 <div className="mb-4">
-                                                    <p className="text-xs text-slate-500 font-medium mb-2">Skills</p>
+                                                    <p className="text-xs text-gray-500 font-medium mb-2">Skills</p>
                                                     <div className="flex flex-wrap gap-1.5">
                                                         {c.parsed_skills.map((s, si) => (
-                                                            <span key={si} className="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full font-medium border border-indigo-100">
+                                                            <span key={si} className="text-xs bg-gray-50 text-gray-700 px-2.5 py-1 rounded-full font-medium border border-gray-100">
                                                                 {s}
                                                             </span>
                                                         ))}
@@ -312,23 +312,23 @@ export const CandidatesPage: React.FC = () => {
 
                                             {/* AI Reasoning */}
                                             {c.ai_reasoning && (
-                                                <div className="mb-4 bg-violet-50 rounded-lg p-3 border border-violet-100">
-                                                    <p className="text-xs text-violet-600 font-medium mb-1 flex items-center"><Award className="w-3.5 h-3.5 mr-1" /> AI Assessment</p>
-                                                    <p className="text-sm text-violet-900">{c.ai_reasoning}</p>
+                                                <div className="mb-4 bg-gray-50 rounded-lg p-3 border border-gray-100">
+                                                    <p className="text-xs text-gray-600 font-medium mb-1 flex items-center"><Award className="w-3.5 h-3.5 mr-1" /> AI Assessment</p>
+                                                    <p className="text-sm text-gray-900">{c.ai_reasoning}</p>
                                                 </div>
                                             )}
 
                                             {/* Personalized Interview Questions */}
                                             {c.interview_questions && c.interview_questions.length > 0 && (
-                                                <div className="mb-5 bg-indigo-50/50 rounded-lg p-4 border border-indigo-100">
-                                                    <h4 className="text-sm font-semibold text-indigo-900 mb-2 flex items-center">
-                                                        <FileText className="w-4 h-4 mr-1.5 text-indigo-600" />
+                                                <div className="mb-5 bg-gray-50/50 rounded-lg p-4 border border-gray-100">
+                                                    <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center">
+                                                        <FileText className="w-4 h-4 mr-1.5 text-gray-600" />
                                                         Personalized Interview Guide
                                                     </h4>
                                                     <ul className="space-y-2">
                                                         {c.interview_questions.map((q: string, qIndex: number) => (
-                                                            <li key={qIndex} className="text-sm text-slate-700 flex items-start">
-                                                                <span className="text-indigo-400 font-bold mr-2 mt-0.5">•</span>
+                                                            <li key={qIndex} className="text-sm text-gray-700 flex items-start">
+                                                                <span className="text-gray-400 font-bold mr-2 mt-0.5">•</span>
                                                                 <span>{q}</span>
                                                             </li>
                                                         ))}
@@ -370,7 +370,7 @@ export const CandidatesPage: React.FC = () => {
                                                     <button
                                                         onClick={() => generateAssessment(c.id)}
                                                         disabled={generatingId === c.id || c.status === 'Rejected'}
-                                                        className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl font-semibold text-sm shadow-lg hover:from-indigo-700 hover:to-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.01] active:scale-[0.99]"
+                                                        className="w-full flex items-center justify-center gap-2 py-3 bg-black text-white rounded-xl font-semibold text-sm hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.01] active:scale-[0.99]"
                                                     >
                                                         {generatingId === c.id ? (
                                                             <>
@@ -389,7 +389,7 @@ export const CandidatesPage: React.FC = () => {
 
                                             {/* Status Change */}
                                             <div>
-                                                <p className="text-xs text-slate-500 font-medium mb-2">Move to Stage</p>
+                                                <p className="text-xs text-gray-500 font-medium mb-2">Move to Stage</p>
                                                 <div className="flex flex-wrap gap-2">
                                                     {['Applied', 'Screening', 'Assessment', 'Interview', 'Offer', 'Rejected'].map(s => (
                                                         <button
@@ -397,8 +397,8 @@ export const CandidatesPage: React.FC = () => {
                                                             onClick={() => handleStatusChange(c.id, s)}
                                                             disabled={c.status === s}
                                                             className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${c.status === s
-                                                                ? 'bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-btn-3d border border-brand-400/50'
-                                                                : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:shadow-sm'
+                                                                ? 'bg-black text-white border border-gray-200'
+                                                                : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100 hover:shadow-sm'
                                                                 }`}
                                                         >
                                                             {s}

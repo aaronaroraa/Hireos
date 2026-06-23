@@ -1,97 +1,71 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Hexagon, LayoutDashboard, Briefcase, Users, Settings } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { LogOut, LayoutDashboard, Settings, UploadCloud } from 'lucide-react';
 import { Outlet, NavLink } from 'react-router-dom';
 
 export const Layout: React.FC = () => {
     const { user, logout } = useAuth();
 
     const navItems = [
-        { to: '/dashboard', icon: LayoutDashboard, label: 'Hiring Workspace' },
-        { to: '/jobs', icon: Briefcase, label: 'Jobs' },
-        { to: '/candidates', icon: Users, label: 'Candidates' },
+        { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        { to: '/bulk-hire', icon: UploadCloud, label: 'Bulk Hire' },
         { to: '/settings', icon: Settings, label: 'Settings' },
     ];
 
     return (
-        <div className="flex h-screen bg-slate-50 font-sans overflow-hidden bg-grid-slate-100 relative">
+        <div className="flex h-screen bg-white font-sans overflow-hidden">
+            {/* Sidebar */}
+            <div className="w-56 flex-shrink-0 border-r border-gray-200 flex flex-col h-full">
+                {/* Logo */}
+                <div className="px-6 py-6 border-b border-gray-200">
+                    <span className="text-lg font-display font-bold text-black tracking-tight">HireOS</span>
+                </div>
 
-            {/* Ambient Background Blobs */}
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-400/20 blur-[120px] mix-blend-multiply animate-blob pointer-events-none" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-violet-400/20 blur-[120px] mix-blend-multiply animate-blob animation-delay-2000 pointer-events-none" />
+                {/* Nav */}
+                <nav className="flex-1 px-3 py-4 space-y-1">
+                    {navItems.map(item => (
+                        <NavLink
+                            key={item.to}
+                            to={item.to}
+                            className={({ isActive }) =>
+                                `flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150 ${
+                                    isActive
+                                        ? 'bg-black text-white'
+                                        : 'text-gray-600 hover:text-black hover:bg-gray-100'
+                                }`
+                            }
+                        >
+                            <item.icon className="w-4 h-4 mr-3 flex-shrink-0" />
+                            {item.label}
+                        </NavLink>
+                    ))}
+                </nav>
 
-            {/* Floating Premium Sidebar */}
-            <div className="p-4 md:p-6 h-full z-20">
-                <motion.div
-                    initial={{ x: -250, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ duration: 0.6, type: "spring", bounce: 0.2 }}
-                    className="w-64 bg-slate-900/95 backdrop-blur-3xl text-slate-300 flex flex-col h-full rounded-[2rem] border border-white/10 shadow-3d overflow-hidden"
-                >
-                    <div className="p-6">
-                        <div className="flex items-center space-x-3 text-white mb-8">
-                            <div className="w-10 h-10 bg-gradient-to-br from-brand-400 to-brand-600 rounded-xl flex items-center justify-center shadow-lg border border-white/20">
-                                <Hexagon className="w-6 h-6 text-white" strokeWidth={2.5} />
-                            </div>
-                            <span className="text-xl font-display font-bold tracking-tight text-glow">Recruit OS</span>
+                {/* User footer */}
+                <div className="px-4 py-4 border-t border-gray-200">
+                    <div className="flex items-center justify-between">
+                        <div className="min-w-0">
+                            <p className="text-sm font-semibold text-black truncate">{user?.name}</p>
+                            <p className="text-xs text-gray-400 truncate">{user?.email}</p>
                         </div>
-
-                        <nav className="space-y-2 flex-1">
-                            {navItems.map(item => (
-                                <NavLink
-                                    key={item.to}
-                                    to={item.to}
-                                    className={({ isActive }) =>
-                                        `flex items-center px-4 py-3.5 rounded-2xl font-medium transition-all duration-300 ${isActive
-                                            ? 'bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-md border border-brand-400/30 translate-x-1'
-                                            : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
-                                        }`
-                                    }
-                                >
-                                    <item.icon className={`w-5 h-5 mr-3 ${/* eslint-disable-next-line @typescript-eslint/no-explicit-any */ (isActive: any) => isActive ? 'text-white' : 'text-slate-500'}`} />
-                                    {item.label}
-                                </NavLink>
-                            ))}
-                        </nav>
+                        <button
+                            onClick={logout}
+                            className="p-1.5 text-gray-400 hover:text-black rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0 ml-2"
+                            title="Sign out"
+                        >
+                            <LogOut className="w-4 h-4" />
+                        </button>
                     </div>
-
-                    {/* User Profile Footer */}
-                    <div className="p-4 mt-auto border-t border-white/10 bg-black/20 backdrop-blur-sm m-3 rounded-2xl">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center overflow-hidden">
-                                <div className="w-10 h-10 bg-gradient-to-br from-brand-400 to-violet-600 rounded-full flex items-center justify-center text-white font-bold text-sm border border-white/20 shadow-sm flex-shrink-0">
-                                    {user?.name?.charAt(0) || 'U'}
-                                </div>
-                                <div className="ml-3 min-w-0 pr-2">
-                                    <p className="text-sm font-semibold text-white truncate">{user?.name}</p>
-                                    <p className="text-xs text-brand-300/80 truncate">{user?.email}</p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={logout}
-                                className="p-2.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all duration-200 flex-shrink-0"
-                                title="Sign out"
-                            >
-                                <LogOut className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
-                </motion.div>
+                </div>
             </div>
 
-            {/* Main Content Area */}
-            <div className="flex-1 flex flex-col h-screen overflow-hidden relative z-10">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 hide-scrollbar"
-                >
-                    <div className="max-w-7xl mx-auto h-full">
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col h-screen overflow-hidden">
+                <div className="flex-1 overflow-y-auto px-8 py-8 hide-scrollbar">
+                    <div className="max-w-6xl mx-auto">
                         <Outlet />
                     </div>
-                </motion.div>
+                </div>
             </div>
         </div>
     );

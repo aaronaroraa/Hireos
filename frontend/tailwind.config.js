@@ -7,8 +7,8 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Inter', 'sans-serif'],
-                display: ['Outfit', 'sans-serif'],
+                sans: ['Poppins', 'sans-serif'],
+                display: ['Poppins', 'sans-serif'],
             },
             boxShadow: {
                 'premium': '0px 4px 24px rgba(0, 0, 0, 0.04), 0px 1px 2px rgba(0, 0, 0, 0.02)',
@@ -22,27 +22,18 @@ export default {
             },
             colors: {
                 brand: {
-                    50: '#f5f3ff',
-                    100: '#ede9fe',
-                    200: '#ddd6fe',
-                    300: '#c4b5fd',
-                    400: '#a78bfa',
-                    500: '#8b5cf6',
-                    600: '#7c3aed',
-                    700: '#6d28d9',
-                    800: '#5b21b6',
-                    900: '#4c1d95',
-                    950: '#2e1065',
+                    50: '#f9fafb',
+                    100: '#f3f4f6',
+                    200: '#e5e7eb',
+                    300: '#d1d5db',
+                    400: '#9ca3af',
+                    500: '#6b7280',
+                    600: '#374151',
+                    700: '#1f2937',
+                    800: '#111827',
+                    900: '#030712',
+                    950: '#000000',
                 },
-                surface: {
-                    50: '#fafafa',
-                    100: '#f4f4f5',
-                    200: '#e4e4e7',
-                    300: '#d4d4d8',
-                    800: '#27272a',
-                    900: '#18181b',
-                    950: '#09090b',
-                }
             },
             animation: {
                 'fade-in': 'fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1)',

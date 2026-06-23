@@ -1,0 +1,27 @@
+# Render Blueprint for the HireOS backend.
+# Connect this repo in Render → "New +" → "Blueprint", point it at /backend.
+services:
+  - type: web
+    name: hireos-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
+    envVars:
+      # Paste your Supabase Postgres connection string here (Render dashboard).
+      # Supabase → Project Settings → Database → Connection string → URI (use the
+      # "Session"/pooler URI on port 6543 for serverless-style hosts).
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        value: "HireOS <onboarding@resend.dev>"
+      - key: ENVIRONMENT
+        value: production

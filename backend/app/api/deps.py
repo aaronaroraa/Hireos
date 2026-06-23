@@ -78,6 +78,38 @@ def get_current_user(
     )
 
 
+# ── Candidate authentication (portal) ──
+class AuthenticatedCandidate:
+    def __init__(self, candidate_id: str, email: str):
+        self.candidate_id = candidate_id
+        self.email = email
+
+
+def get_current_candidate(
+    credentials: HTTPAuthorizationCredentials = Depends(security_scheme),
+    db: Session = Depends(get_db),
+) -> AuthenticatedCandidate:
+    """Decode a candidate portal token and return the authenticated candidate."""
+    from app.models.candidate import Candidate
+
+    if not credentials:
+        raise HTTPException(status_code=401, detail="Please sign in to access your portal.")
+    try:
+        payload = decode_token(credentials.credentials)
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Your session has expired. Please sign in again.")
+
+    if payload.get("type") != "candidate_access":
+        raise HTTPException(status_code=401, detail="Invalid session token.")
+
+    candidate_id = payload.get("candidate_id")
+    candidate = db.query(Candidate).filter(Candidate.id == candidate_id).first()
+    if not candidate:
+        raise HTTPException(status_code=401, detail="Candidate record not found.")
+
+    return AuthenticatedCandidate(candidate_id=candidate.id, email=candidate.email or "")
+
+
 # ── Role-based access control ──
 def require_role(allowed_roles: list[str]):
     """

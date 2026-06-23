@@ -8,7 +8,7 @@ class Candidate(Base):
     __tablename__ = "candidates"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    job_id = Column(String, ForeignKey("jobs.id"), nullable=False, index=True)
+    job_id = Column(String, ForeignKey("jobs.id"), nullable=True, index=True)
     name = Column(String, nullable=False, default="Unknown Candidate")
     email = Column(String, nullable=True, index=True)
     phone = Column(String, nullable=True)

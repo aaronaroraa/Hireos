@@ -15,17 +15,21 @@ class Settings(BaseSettings):
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     JWT_REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
-    # ── OpenAI ──
+    # ── AI (Groq — OpenAI-compatible) ──
     OPENAI_API_KEY: str = "sk-placeholder"
-    OPENAI_MODEL: str = "gpt-3.5-turbo"
+    OPENAI_BASE_URL: str = "https://api.groq.com/openai/v1"
+    OPENAI_MODEL: str = "llama-3.1-8b-instant"
 
-    # ── Email (Resend) ──
-    RESEND_API_KEY: str = "re_placeholder"
-    EMAIL_FROM: str = "Recruitment OS <onboarding@resend.dev>"
+    # ── Email (Gmail SMTP) ──
+    GMAIL_USER: str = ""
+    GMAIL_APP_PASSWORD: str = ""
+    EMAIL_FROM: str = "HireOS <aaronarora4689@gmail.com>"
 
     # ── CORS ──
     ALLOWED_ORIGINS: list[str] = [
         "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:5175",
         "http://localhost:3000",
     ]
 

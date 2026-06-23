@@ -11,11 +11,13 @@ from slowapi.errors import RateLimitExceeded
 import uvicorn
 
 from app.core.config import settings
-from app.api.v1 import auth, jobs, resumes, assessments, candidates, bulk_upload, candidate_portal, analytics
+from app.api.v1 import auth, jobs, resumes, assessments, candidates, bulk_upload, candidate_portal, analytics, interview_portal, pipeline_config, candidate_app
 from app.db.session import engine, Base
 from app.models import core, assessments as assessment_models, candidate
 from app.models import campaign as campaign_model
 from app.models import notification as notification_model
+from app.models import interview as interview_model
+from app.models import portal as portal_model
 
 # ── Create tables ──
 Base.metadata.create_all(bind=engine)
@@ -58,6 +60,9 @@ app.include_router(assessments.router, prefix="/api/v1/assessments", tags=["asse
 app.include_router(candidates.router, prefix="/api/v1/candidates", tags=["candidates"])
 app.include_router(bulk_upload.router, prefix="/api/v1/bulk", tags=["bulk"])
 app.include_router(candidate_portal.router, prefix="/api/v1/portal", tags=["portal"])
+app.include_router(interview_portal.router, prefix="/api/v1/portal", tags=["interview"])
+app.include_router(pipeline_config.router, prefix="/api/v1/pipeline", tags=["pipeline"])
+app.include_router(candidate_app.router, prefix="/api/v1/candidate", tags=["candidate-portal"])
 app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["analytics"])
 
 # ── Health checks ──
