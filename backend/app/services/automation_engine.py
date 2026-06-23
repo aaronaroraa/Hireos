@@ -8,8 +8,9 @@ Processes a spreadsheet of candidates through:
 4. Move rest to Rejected
 5. Update campaign progress in real-time
 """
-import pandas as pd
-from io import BytesIO
+import csv
+import openpyxl
+from io import BytesIO, StringIO
 from sqlalchemy.orm import Session
 from datetime import datetime
 
@@ -27,16 +28,26 @@ def parse_spreadsheet(file_bytes: bytes, filename: str) -> list[dict]:
     Parse an Excel or CSV file into a list of candidate dictionaries.
     Handles flexible column naming.
     """
+    rows = []
     try:
         if filename.endswith(".csv"):
-            df = pd.read_csv(BytesIO(file_bytes))
+            content = file_bytes.decode("utf-8", errors="ignore")
+            reader = csv.reader(StringIO(content))
+            rows = list(reader)
         else:
-            df = pd.read_excel(BytesIO(file_bytes))
+            wb = openpyxl.load_workbook(BytesIO(file_bytes), read_only=True, data_only=True)
+            sheet = wb.active
+            for r in sheet.iter_rows(values_only=True):
+                rows.append([str(cell) if cell is not None else "" for cell in r])
     except Exception as e:
         raise ValueError(f"Failed to parse spreadsheet: {e}")
 
-    # Normalize column names (lowercase, strip whitespace)
-    df.columns = [col.strip().lower().replace(" ", "_") for col in df.columns]
+    if not rows:
+        return []
+
+    # Get header row (first row) and normalize column names
+    header = [str(col).strip().lower().replace(" ", "_") for col in rows[0]]
+    data_rows = rows[1:]
 
     # Map flexible column names to standard names
     column_map = {
@@ -49,19 +60,32 @@ def parse_spreadsheet(file_bytes: bytes, filename: str) -> list[dict]:
         "current_company": ["current_company", "company", "current_employer", "organization", "employer"],
     }
 
-    def find_column(standard_name: str) -> str | None:
-        for alias in column_map.get(standard_name, []):
-            if alias in df.columns:
-                return alias
+    def find_index_for_standard_name(standard_name: str) -> int | None:
+        aliases = column_map.get(standard_name, [])
+        for alias in aliases:
+            if alias in header:
+                return header.index(alias)
         return None
 
+    col_indices = {}
+    for standard_name in column_map:
+        idx = find_index_for_standard_name(standard_name)
+        if idx is not None:
+            col_indices[standard_name] = idx
+
     candidates = []
-    for _, row in df.iterrows():
+    for r in data_rows:
+        if not r:
+            continue
         candidate = {}
         for standard_name in column_map:
-            col = find_column(standard_name)
-            if col and pd.notna(row.get(col)):
-                candidate[standard_name] = str(row[col]).strip()
+            idx = col_indices.get(standard_name)
+            if idx is not None and idx < len(r):
+                val = str(r[idx]).strip()
+                if val and val.lower() != "none" and val.lower() != "nan":
+                    candidate[standard_name] = val
+                else:
+                    candidate[standard_name] = ""
             else:
                 candidate[standard_name] = ""
 
@@ -70,6 +94,7 @@ def parse_spreadsheet(file_bytes: bytes, filename: str) -> list[dict]:
             candidates.append(candidate)
 
     return candidates
+
 
 
 def run_campaign(
