@@ -1,12 +1,17 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# Fallback to SQLite for local development
-SQLALCHEMY_DATABASE_URL = "sqlite:///./recruitment_os.db"
+from app.core.config import settings
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
+# Read from environment / .env via config
+SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
+
+# SQLite requires check_same_thread=False; other DBs do not
+connect_args = {}
+if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    connect_args["check_same_thread"] = False
+
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args=connect_args)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
@@ -17,3 +22,4 @@ def get_db():
         yield db
     finally:
         db.close()
+
