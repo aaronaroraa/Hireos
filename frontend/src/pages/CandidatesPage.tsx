@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Users, Search, Loader2, ChevronDown, Star, Mail, Clock, Award
+    Users, Search, Loader2, ChevronDown, Star, Mail, Clock, Award, FileText,
+    Sparkles, ExternalLink, Copy, CheckCircle2
 } from 'lucide-react';
 
 interface Candidate {
@@ -18,6 +19,7 @@ interface Candidate {
     education: string | null;
     current_company: string | null;
     source: string;
+    interview_questions: string[] | null;
     created_at: string;
 }
 
@@ -79,6 +81,40 @@ export const CandidatesPage: React.FC = () => {
         }
     };
 
+    // ── AI Assessment Generation ──
+    const [generatingId, setGeneratingId] = useState<string | null>(null);
+    const [assessmentResult, setAssessmentResult] = useState<{
+        candidateId: string;
+        title: string;
+        portalUrl: string;
+    } | null>(null);
+
+    const generateAssessment = async (candidateId: string) => {
+        setGeneratingId(candidateId);
+        setAssessmentResult(null);
+        try {
+            const { data } = await api.post(`/assessments/generate/${candidateId}`);
+            // Update candidate status locally
+            setCandidates(prev => prev.map(c =>
+                c.id === candidateId ? { ...c, status: 'Assessment' } : c
+            ));
+            setAssessmentResult({
+                candidateId,
+                title: data.assessment_title,
+                portalUrl: data.portal_url,
+            });
+        } catch (err: any) {
+            console.error('Failed to generate assessment:', err);
+            alert(err?.response?.data?.detail || 'Failed to generate AI assessment. Check your OpenAI API key.');
+        } finally {
+            setGeneratingId(null);
+        }
+    };
+
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+    };
+
     const filtered = candidates
         .filter(c => stageFilter === 'All' || c.status === stageFilter)
         .filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -104,8 +140,8 @@ export const CandidatesPage: React.FC = () => {
         <div>
             {/* Header */}
             <div className="mb-8">
-                <h1 className="text-3xl font-display font-bold text-slate-900 tracking-tight">Candidates</h1>
-                <p className="text-slate-500 mt-1">Track and manage candidates across all pipeline stages.</p>
+                <h1 className="text-4xl font-display font-black text-slate-900 tracking-tight text-glow">Candidates</h1>
+                <p className="text-slate-500 mt-2 font-medium">Track and manage candidates across all pipeline stages.</p>
             </div>
 
             {/* Job Selector */}
@@ -193,14 +229,14 @@ export const CandidatesPage: React.FC = () => {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.2, delay: i * 0.03 }}
-                            className="bg-white rounded-xl border border-slate-200/60 shadow-sm hover:shadow-md transition-all"
+                            className="card-3d mb-4 overflow-hidden"
                         >
                             <div
                                 className="flex items-center px-6 py-4 cursor-pointer"
                                 onClick={() => setExpandedId(expandedId === c.id ? null : c.id)}
                             >
                                 {/* Avatar */}
-                                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                <div className="w-10 h-10 bg-gradient-to-br from-brand-400 to-violet-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-inner">
                                     {c.name.charAt(0)}
                                 </div>
 
@@ -282,6 +318,75 @@ export const CandidatesPage: React.FC = () => {
                                                 </div>
                                             )}
 
+                                            {/* Personalized Interview Questions */}
+                                            {c.interview_questions && c.interview_questions.length > 0 && (
+                                                <div className="mb-5 bg-indigo-50/50 rounded-lg p-4 border border-indigo-100">
+                                                    <h4 className="text-sm font-semibold text-indigo-900 mb-2 flex items-center">
+                                                        <FileText className="w-4 h-4 mr-1.5 text-indigo-600" />
+                                                        Personalized Interview Guide
+                                                    </h4>
+                                                    <ul className="space-y-2">
+                                                        {c.interview_questions.map((q: string, qIndex: number) => (
+                                                            <li key={qIndex} className="text-sm text-slate-700 flex items-start">
+                                                                <span className="text-indigo-400 font-bold mr-2 mt-0.5">•</span>
+                                                                <span>{q}</span>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
+
+                                            {/* ── AI Assessment Generation ── */}
+                                            <div className="mb-5">
+                                                {assessmentResult && assessmentResult.candidateId === c.id ? (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: 8 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-4 border border-emerald-200"
+                                                    >
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                                                            <h4 className="text-sm font-bold text-emerald-900">Assessment Generated!</h4>
+                                                        </div>
+                                                        <p className="text-xs text-emerald-700 mb-3">{assessmentResult.title}</p>
+                                                        <div className="flex items-center gap-2">
+                                                            <button
+                                                                onClick={() => copyToClipboard(assessmentResult.portalUrl)}
+                                                                className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-white text-emerald-700 rounded-lg border border-emerald-200 hover:bg-emerald-50 transition-all font-medium"
+                                                            >
+                                                                <Copy className="w-3 h-3" /> Copy Link
+                                                            </button>
+                                                            <a
+                                                                href={assessmentResult.portalUrl}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all font-medium"
+                                                            >
+                                                                <ExternalLink className="w-3 h-3" /> Open Portal
+                                                            </a>
+                                                        </div>
+                                                    </motion.div>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => generateAssessment(c.id)}
+                                                        disabled={generatingId === c.id || c.status === 'Rejected'}
+                                                        className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl font-semibold text-sm shadow-lg hover:from-indigo-700 hover:to-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.01] active:scale-[0.99]"
+                                                    >
+                                                        {generatingId === c.id ? (
+                                                            <>
+                                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                                <span>Generating Personalized Challenge...</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Sparkles className="w-4 h-4" />
+                                                                <span>Generate AI Assessment</span>
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                )}
+                                            </div>
+
                                             {/* Status Change */}
                                             <div>
                                                 <p className="text-xs text-slate-500 font-medium mb-2">Move to Stage</p>
@@ -291,9 +396,9 @@ export const CandidatesPage: React.FC = () => {
                                                             key={s}
                                                             onClick={() => handleStatusChange(c.id, s)}
                                                             disabled={c.status === s}
-                                                            className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all border ${c.status === s
-                                                                ? 'bg-indigo-600 text-white border-indigo-600'
-                                                                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                                                            className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${c.status === s
+                                                                ? 'bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-btn-3d border border-brand-400/50'
+                                                                : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:shadow-sm'
                                                                 }`}
                                                         >
                                                             {s}

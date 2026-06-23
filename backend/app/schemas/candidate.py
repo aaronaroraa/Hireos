@@ -7,6 +7,7 @@ class CandidateBase(BaseModel):
     email: Optional[str] = None
     phone: Optional[str] = None
     status: str = "Applied"
+    interview_questions: Optional[List[str]] = None
     parsed_skills: Optional[List[str]] = None
     parsed_experience: Optional[Dict[str, Any]] = None
     resume_text: Optional[str] = None

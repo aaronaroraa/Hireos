@@ -85,18 +85,18 @@ export const JobsPage: React.FC = () => {
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h1 className="text-3xl font-display font-bold text-slate-900 tracking-tight">
+                    <h1 className="text-4xl font-display font-black text-slate-900 tracking-tight text-glow">
                         Jobs & Requisitions
                     </h1>
-                    <p className="text-slate-500 mt-1">
+                    <p className="text-slate-500 mt-2 font-medium">
                         Manage all your open positions and requirements.
                     </p>
                 </div>
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="flex items-center px-5 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all font-medium shadow-sm"
+                    className="btn-3d flex items-center px-6 py-3 text-sm"
                 >
-                    <Plus className="w-5 h-5 mr-2" /> Create Job
+                    <Plus className="w-5 h-5 mr-1.5" /> Create Job
                 </button>
             </div>
 
@@ -145,14 +145,14 @@ export const JobsPage: React.FC = () => {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.3, delay: i * 0.05 }}
                             onClick={() => setSelectedJob(selectedJob?.id === job.id ? null : job)}
-                            className={`bg-white rounded-2xl border p-6 cursor-pointer transition-all duration-300 hover:shadow-premium-hover hover:-translate-y-1 ${selectedJob?.id === job.id
-                                ? 'border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.15)]'
-                                : 'border-slate-200/60 shadow-premium'
+                            className={`card-3d cursor-pointer ${selectedJob?.id === job.id
+                                ? 'border-brand-500 shadow-[0_0_20px_rgba(139,92,246,0.3)] ring-1 ring-brand-500 bg-white/95'
+                                : 'hover:bg-white/95'
                                 }`}
                         >
                             <div className="flex items-start justify-between mb-4">
-                                <div className="p-2.5 bg-gradient-to-br from-indigo-50 to-violet-50 rounded-xl border border-indigo-100/50">
-                                    <Briefcase className="w-5 h-5 text-indigo-600" />
+                                <div className="p-2.5 bg-gradient-to-br from-brand-50 to-violet-50 rounded-xl border border-brand-100/50 shadow-sm">
+                                    <Briefcase className="w-5 h-5 text-brand-600" />
                                 </div>
                                 <span className="text-xs text-slate-400 font-medium">
                                     {new Date(job.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
@@ -190,10 +190,10 @@ export const JobsPage: React.FC = () => {
                                         <p className="text-sm text-slate-600 whitespace-pre-wrap max-h-48 overflow-y-auto">
                                             {job.description}
                                         </p>
-                                        <div className="mt-4 flex gap-2">
+                                        <div className="mt-5 pt-4 border-t border-slate-200">
                                             <a
                                                 href={`/bulk-upload`}
-                                                className="flex-1 text-center text-sm py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all font-medium"
+                                                className="btn-3d block w-full text-center py-3 text-sm"
                                             >
                                                 Bulk Hire for This Role
                                             </a>
@@ -221,16 +221,16 @@ export const JobsPage: React.FC = () => {
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.95, opacity: 0 }}
                             onClick={e => e.stopPropagation()}
-                            className="bg-white rounded-2xl w-full max-w-lg p-8 shadow-2xl max-h-[80vh] overflow-y-auto"
+                            className="relative card-3d bg-white/95 w-full max-w-lg overflow-hidden flex flex-col p-0 border border-white/40"
                         >
-                            <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center justify-between p-6 bg-white/50 backdrop-blur-sm border-b border-white">
                                 <h2 className="text-2xl font-display font-bold text-slate-900">Create New Job</h2>
-                                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-lg">
+                                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100/50 rounded-lg transition-colors">
                                     <X className="w-5 h-5 text-slate-400" />
                                 </button>
                             </div>
 
-                            <div className="space-y-4">
+                            <div className="p-6 space-y-4">
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Job Title</label>
                                     <input
@@ -254,7 +254,7 @@ export const JobsPage: React.FC = () => {
                                 <button
                                     onClick={handleGenerateJD}
                                     disabled={generating || !newTitle}
-                                    className="w-full py-2.5 bg-violet-50 text-violet-700 border border-violet-200 rounded-xl hover:bg-violet-100 transition-all font-medium disabled:opacity-50"
+                                    className="w-full py-3.5 bg-brand-50 text-brand-700 border border-brand-200 rounded-xl hover:bg-brand-100 transition-all font-medium disabled:opacity-50 shadow-sm"
                                 >
                                     {generating ? <Loader2 className="w-4 h-4 animate-spin inline mr-2" /> : <Sparkles className="w-4 h-4 inline mr-2" />}
                                     {generating ? 'Generating...' : 'AI Generate Description'}
@@ -273,7 +273,7 @@ export const JobsPage: React.FC = () => {
                                 <button
                                     onClick={handleSaveJob}
                                     disabled={saving || !newTitle}
-                                    className="w-full py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all font-medium disabled:opacity-50"
+                                    className="btn-3d w-full py-3.5 mt-2"
                                 >
                                     {saving ? <Loader2 className="w-5 h-5 animate-spin inline" /> : 'Publish Job'}
                                 </button>

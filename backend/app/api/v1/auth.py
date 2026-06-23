@@ -7,7 +7,7 @@ from jose import JWTError
 
 from app.db.session import get_db
 from app.models.core import User, Company
-from app.schemas.user import UserCreate, UserLogin, UserResponse, Token
+from app.schemas.user import UserCreate, UserLogin, UserResponse, Token, UserForgotPassword
 from app.core.security import (
     get_password_hash,
     verify_password,
@@ -122,3 +122,22 @@ def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
         "access_token": create_access_token(data=new_token_data),
         "token_type": "bearer",
     }
+
+
+@router.post("/forgot-password")
+def forgot_password(payload: UserForgotPassword, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == payload.email).first()
+    if not user:
+        return {"message": "If that email is in our database, we have sent a password reset link."}
+    
+    from datetime import timedelta
+    reset_token = create_access_token(data={"sub": user.email, "type": "reset"}, expires_delta=timedelta(minutes=15))
+    
+    print(f"\n{'='*50}")
+    print(f"MOCK EMAIL DISPATCHED TO: {user.email}")
+    print(f"SUBJECT: Password Reset Request")
+    print(f"BODY:\nTo reset your password, please click the link below within 15 minutes:")
+    print(f"http://localhost:5173/reset-password?token={reset_token}")
+    print(f"{'='*50}\n")
+    
+    return {"message": "If that email is in our database, we have sent a password reset link."}

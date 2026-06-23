@@ -44,8 +44,8 @@ export const SettingsPage: React.FC = () => {
     return (
         <div>
             <div className="mb-8">
-                <h1 className="text-3xl font-display font-bold text-slate-900 tracking-tight">Settings</h1>
-                <p className="text-slate-500 mt-1">Manage your account, security, and preferences.</p>
+                <h1 className="text-4xl font-display font-black text-slate-900 tracking-tight text-glow">Settings</h1>
+                <p className="text-slate-500 mt-2 font-medium">Manage your account, security, and preferences.</p>
             </div>
 
             <div className="flex gap-8">
@@ -78,7 +78,7 @@ export const SettingsPage: React.FC = () => {
                     >
                         {/* Profile Tab */}
                         {activeTab === 'profile' && (
-                            <div className="bg-white rounded-2xl border border-slate-200/60 shadow-premium p-8">
+                            <div className="card-3d p-8">
                                 <h2 className="text-xl font-semibold text-slate-900 mb-6">Profile Information</h2>
 
                                 <div className="flex items-center gap-5 mb-8">
@@ -114,7 +114,7 @@ export const SettingsPage: React.FC = () => {
                                 <button
                                     onClick={handleSave}
                                     disabled={saving}
-                                    className="mt-6 flex items-center px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all font-medium disabled:opacity-50"
+                                    className="btn-3d mt-6 flex items-center px-6 py-3.5"
                                 >
                                     {saving ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> :
                                         saved ? <Check className="w-5 h-5 mr-2" /> :
@@ -126,7 +126,7 @@ export const SettingsPage: React.FC = () => {
 
                         {/* Security Tab */}
                         {activeTab === 'security' && (
-                            <div className="bg-white rounded-2xl border border-slate-200/60 shadow-premium p-8">
+                            <div className="card-3d p-8">
                                 <h2 className="text-xl font-semibold text-slate-900 mb-6">Change Password</h2>
 
                                 <div className="space-y-4">
@@ -158,7 +158,7 @@ export const SettingsPage: React.FC = () => {
 
                                 <button
                                     onClick={handleSave}
-                                    className="mt-6 flex items-center px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all font-medium"
+                                    className="btn-3d mt-6 flex items-center px-6 py-3.5"
                                 >
                                     <Key className="w-5 h-5 mr-2" /> Update Password
                                 </button>
@@ -188,7 +188,7 @@ export const SettingsPage: React.FC = () => {
 
                         {/* Notifications Tab */}
                         {activeTab === 'notifications' && (
-                            <div className="bg-white rounded-2xl border border-slate-200/60 shadow-premium p-8">
+                            <div className="card-3d p-8">
                                 <h2 className="text-xl font-semibold text-slate-900 mb-6">Notification Preferences</h2>
 
                                 <div className="space-y-5">
@@ -212,7 +212,7 @@ export const SettingsPage: React.FC = () => {
                                     ))}
                                 </div>
 
-                                <button onClick={handleSave} className="mt-6 flex items-center px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all font-medium">
+                                <button onClick={handleSave} className="btn-3d mt-6 flex items-center px-6 py-3.5">
                                     <Save className="w-5 h-5 mr-2" /> Save Preferences
                                 </button>
                             </div>
@@ -220,7 +220,7 @@ export const SettingsPage: React.FC = () => {
 
                         {/* Company Tab */}
                         {activeTab === 'company' && (
-                            <div className="bg-white rounded-2xl border border-slate-200/60 shadow-premium p-8">
+                            <div className="card-3d p-8">
                                 <h2 className="text-xl font-semibold text-slate-900 mb-6">Company Details</h2>
 
                                 <div className="flex items-center gap-5 mb-8 p-5 bg-gradient-to-br from-indigo-50 to-violet-50 rounded-xl border border-indigo-100/50">

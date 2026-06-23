@@ -25,6 +25,8 @@ class AssessmentPortalResponse(BaseModel):
     instructions: str
     skills: list[str]
     status: str
+    initial_code: Optional[str] = None
+    difficulty: Optional[str] = None
 
 
 class AssessmentSubmitRequest(BaseModel):
@@ -79,6 +81,8 @@ def get_assessment_portal(
         instructions=config.get("instructions", "Complete the technical assessment below."),
         skills=config.get("skills", []),
         status=submission.status,
+        initial_code=config.get("initial_code"),
+        difficulty=config.get("difficulty"),
     )
 
 
@@ -129,6 +133,42 @@ async def submit_assessment(
         submission_id=submission.id,
         status=submission.status,
         score=submission.score,
+        feedback=submission.feedback,
+        candidate_name=candidate.name if candidate else "Candidate",
+    )
+
+
+@router.post("/{submission_id}/disqualify", response_model=AssessmentSubmitResponse)
+async def disqualify_assessment(
+    submission_id: str,
+    db: Session = Depends(deps.get_db),
+):
+    """
+    Candidate disqualified due to proctoring violation.
+    """
+    submission = db.query(AssessmentSubmission).filter(
+        AssessmentSubmission.id == submission_id
+    ).first()
+
+    if not submission:
+        raise HTTPException(status_code=404, detail="Assessment not found.")
+
+    submission.status = "disqualified"
+    submission.score = 0
+    submission.feedback = "DISQUALIFIED: Multiple proctoring violations detected (Tab switching or motion)."
+    db.commit()
+    db.refresh(submission)
+
+    # Move candidate to Rejected
+    candidate = db.query(Candidate).filter(Candidate.id == submission.candidate_id).first()
+    if candidate:
+        candidate.status = "Rejected"
+        db.commit()
+
+    return AssessmentSubmitResponse(
+        submission_id=submission.id,
+        status=submission.status,
+        score=0,
         feedback=submission.feedback,
         candidate_name=candidate.name if candidate else "Candidate",
     )

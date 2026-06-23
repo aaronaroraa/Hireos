@@ -27,6 +27,7 @@ class Candidate(Base):
     # AI scoring fields (Phase 7)
     ai_score = Column(Float, nullable=True)       # 0-100 match score from AI
     ai_reasoning = Column(Text, nullable=True)     # AI's explanation for the score
+    interview_questions = Column(JSON, nullable=True) # AI generated custom questions
     source = Column(String, default="manual")       # 'manual', 'bulk_upload', 'resume_parse'
     campaign_id = Column(String, ForeignKey("hiring_campaigns.id"), nullable=True, index=True)
 

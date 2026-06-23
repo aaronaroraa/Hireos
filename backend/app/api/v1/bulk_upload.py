@@ -245,3 +245,38 @@ def get_final_ranking(
         "assessments_pending": len([r for r in results if r["assessment_score"] is None]),
         "ranking": results,
     }
+
+
+@router.get("/recent-shortlisted")
+def get_recent_shortlisted(
+    db: Session = Depends(get_db),
+    current_user: AuthenticatedUser = Depends(get_current_user),
+):
+    """Return the 15 most recently shortlisted candidates across all campaigns for this company."""
+    candidates = (
+        db.query(Candidate)
+        .join(Job, Candidate.job_id == Job.id)
+        .filter(
+            Job.company_id == current_user.company_id,
+            Candidate.ai_score.isnot(None),
+            Candidate.status.notin_(["Rejected", "Processing"]),
+        )
+        .order_by(Candidate.created_at.desc())
+        .limit(15)
+        .all()
+    )
+
+    return [
+        {
+            "id": c.id,
+            "name": c.name,
+            "email": c.email,
+            "ai_score": c.ai_score,
+            "status": c.status,
+            "job_title": c.job.title if c.job else "Unknown",
+            "experience_years": c.experience_years,
+            "skills": (c.parsed_skills or [])[:3],
+            "created_at": c.created_at.isoformat() if c.created_at else None,
+        }
+        for c in candidates
+    ]

@@ -9,3 +9,5 @@ python-multipart==0.0.9
  PyJWT==2.8.0
 openai==1.30.5
 python-dotenv==1.0.1
+requests==2.32.3
+slowapi==0.1.9

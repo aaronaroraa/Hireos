@@ -36,10 +36,48 @@
   background: #94a3b8;
 }
 
-/* Glassmorphism utility */
-.glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+@layer utilities {
+  .bg-grid-slate-100 {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='%23f1f5f9'%3E%3Cpath d='M0 .5H31.5V32'/%3E%3C/svg%3E");
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+  }
+}
+
+/* Base Component Upgrades for 3D Feel */
+.card-3d {
+  @apply bg-white/80 backdrop-blur-3xl border border-white/60 shadow-3d transition-all duration-300 rounded-3xl;
+}
+
+.card-3d:hover {
+  @apply shadow-3d-hover bg-white/95 translate-y-[-2px] border-white;
+}
+
+.btn-3d {
+  @apply bg-gradient-to-b from-brand-500 to-brand-600 text-white font-medium shadow-btn-3d border border-brand-700/50 
+         transition-all duration-200 rounded-xl relative overflow-hidden;
+}
+
+.btn-3d::after {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-t from-black/0 to-white/20 opacity-0 transition-opacity duration-200;
+}
+
+.btn-3d:hover {
+  @apply shadow-btn-3d-hover translate-y-[-1px];
+}
+
+.btn-3d:hover::after {
+  @apply opacity-100;
+}
+
+.btn-3d:active {
+  @apply shadow-btn-3d-active translate-y-[1px];
+}
+
+/* Glassmorphism Structural utility */
+.glass-panel {
+  @apply bg-white/60 backdrop-blur-2xl border border-white border-b-white/50 border-r-white/50 shadow-glass-panel;
 }

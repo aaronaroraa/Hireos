@@ -4,7 +4,6 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { Layout } from './components/Layout';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
-import { BulkUpload } from './pages/BulkUpload';
 import { JobsPage } from './pages/JobsPage';
 import { CandidatesPage } from './pages/CandidatesPage';
 import { SettingsPage } from './pages/SettingsPage';
@@ -25,7 +24,6 @@ function AppRoutes() {
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="jobs" element={<JobsPage />} />
-        <Route path="bulk-upload" element={<BulkUpload />} />
         <Route path="candidates" element={<CandidatesPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>

@@ -18,6 +18,7 @@ from app.models.campaign import HiringCampaign
 from app.models.core import Job
 from app.models.assessments import Assessment, AssessmentSubmission
 from app.services.ai_scorer import score_candidate_ai
+from app.services.ai_personalization import generate_personalized_assessment
 from app.services.email_service import send_shortlist_notification, send_rejection_notification
 
 
@@ -176,37 +177,44 @@ def run_campaign(
     campaign.rejected_count = len(rejected_candidates)
     db.commit()
 
-    # ─── Step 4: Auto-create assessment + submissions ───
+    # ─── Step 4: Auto-create PERSONALIZED assessment + submissions ───
     campaign.status = "creating_assessments"
     campaign.progress_percent = 85
     db.commit()
 
-    # Create an assessment for this job (if one doesn't already exist)
-    existing_assessment = db.query(Assessment).filter(Assessment.job_id == job_id).first()
-    if not existing_assessment:
+    submissions = []
+    for candidate in shortlisted_candidates:
+        # Prepare subset of candidate data for the AI personalization
+        candidate_subset = {
+            "name": candidate.name,
+            "skills": candidate.parsed_skills or [],
+            "experience_years": candidate.experience_years or 0,
+            "education": candidate.education or ""
+        }
+        
+        # Call the new personalized AI service
+        custom_data = generate_personalized_assessment(candidate_subset, job_data)
+        
+        # Save the interview questions to the candidate record
+        candidate.interview_questions = custom_data.get("interview_questions", [])
+        db.commit()
+
+        # Create a unique Assessment just for this candidate
         assessment = Assessment(
             job_id=job_id,
-            title=f"Technical Assessment — {job_data['title']}",
+            title=f"Personalized Technical Assessment — {job_data['title']} ({candidate.name})",
             type="coding",
-            config={
+            config=custom_data.get("assessment_config", {
                 "time_limit_minutes": 45,
                 "language": "python",
-                "skills": job_data.get("skills_required", []),
-                "instructions": (
-                    f"Complete the coding challenge for the {job_data['title']} position. "
-                    f"You will be evaluated on: {', '.join(job_data.get('skills_required', ['general skills']))}."
-                ),
-            },
+                "instructions": "Write a Python function representing a core component of this role."
+            })
         )
         db.add(assessment)
         db.commit()
         db.refresh(assessment)
-    else:
-        assessment = existing_assessment
 
-    # Create pending submissions for every shortlisted candidate
-    submissions = []
-    for candidate in shortlisted_candidates:
+        # Create their submission link
         submission = AssessmentSubmission(
             assessment_id=assessment.id,
             candidate_id=candidate.id,

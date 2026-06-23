@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = "sk-placeholder"
     OPENAI_MODEL: str = "gpt-3.5-turbo"
 
+    # ── Email (Resend) ──
+    RESEND_API_KEY: str = "re_placeholder"
+    EMAIL_FROM: str = "Recruitment OS <onboarding@resend.dev>"
+
     # ── CORS ──
     ALLOWED_ORIGINS: list[str] = [
         "http://localhost:5173",
