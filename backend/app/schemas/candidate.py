@@ -24,6 +24,7 @@ class CandidateResponse(CandidateBase):
     job_id: str
     ai_score: Optional[float] = None
     ai_reasoning: Optional[str] = None
+    recommendation: Optional[str] = None
     source: Optional[str] = None
     campaign_id: Optional[str] = None
     experience_years: Optional[float] = None

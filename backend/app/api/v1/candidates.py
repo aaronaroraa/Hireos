@@ -15,7 +15,7 @@ from app.schemas.candidate import CandidateResponse, CandidateUpdateStatus
 router = APIRouter()
 
 
-@router.get("/", response_model=List[CandidateResponse])
+@router.get("/")
 def get_candidates_for_job(
     *,
     db: Session = Depends(get_db),
@@ -23,7 +23,6 @@ def get_candidates_for_job(
     job_id: str,
 ):
     """Get all candidates for a job — only if the job belongs to the user's company."""
-    # Verify the job belongs to this company (tenant isolation)
     job = db.query(Job).filter(
         Job.id == job_id,
         Job.company_id == current_user.company_id,
@@ -32,7 +31,21 @@ def get_candidates_for_job(
         raise HTTPException(status_code=404, detail="Job not found or access denied.")
 
     candidates = db.query(Candidate).filter(Candidate.job_id == job_id).all()
-    return candidates
+
+    # Attach recommendation from latest completed interview session
+    result = []
+    for c in candidates:
+        session = (
+            db.query(InterviewSession)
+            .filter(InterviewSession.candidate_id == c.id, InterviewSession.status == "completed")
+            .order_by(InterviewSession.created_at.desc())
+            .first()
+        )
+        d = {col.name: getattr(c, col.name) for col in c.__table__.columns}
+        d["recommendation"] = session.recommendation if session else None
+        result.append(d)
+
+    return result
 
 
 @router.patch("/{candidate_id}/status", response_model=CandidateResponse)

@@ -14,6 +14,7 @@ interface Candidate {
     match_score: number | null;
     ai_score: number | null;
     resume_text: string | null;
+    recommendation: string | null;
 }
 
 interface Debrief {
@@ -292,12 +293,30 @@ export const JobPipeline: React.FC<{ jobId: string; onBack: () => void }> = ({ j
                                     <div key={candidate.id} className="bg-white p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors">
                                         <div className="flex justify-between items-start mb-3">
                                             <h4 className="font-semibold text-black text-sm">{candidate.name}</h4>
-                                            {(candidate.ai_score != null || candidate.match_score != null) && (
-                                                <span className="flex items-center text-[10px] font-bold text-black bg-gray-100 px-2 py-0.5 rounded-md">
-                                                    <Star className="w-3 h-3 mr-1 fill-black" />
-                                                    {candidate.ai_score ?? candidate.match_score}%
-                                                </span>
-                                            )}
+                                            {(candidate.ai_score != null || candidate.match_score != null) && (() => {
+                                                const score = candidate.ai_score ?? candidate.match_score ?? 0;
+                                                const verdict = candidate.recommendation;
+                                                const isAdvance = verdict === 'advance';
+                                                const isReject = verdict === 'reject';
+                                                return (
+                                                    <div className="flex flex-col items-end gap-1">
+                                                        <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${
+                                                            isAdvance ? 'bg-green-100 text-green-700' :
+                                                            isReject  ? 'bg-red-100 text-red-600' :
+                                                            'bg-gray-100 text-gray-700'
+                                                        }`}>
+                                                            {score}/100
+                                                        </span>
+                                                        {verdict && (
+                                                            <span className={`text-[9px] font-bold uppercase tracking-wider ${
+                                                                isAdvance ? 'text-green-600' : 'text-red-500'
+                                                            }`}>
+                                                                {isAdvance ? '✓ Advance' : '✗ Reject'}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })()}
                                         </div>
 
                                         <div className="space-y-1.5 mb-3">
