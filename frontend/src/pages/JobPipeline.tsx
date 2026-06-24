@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { api } from '../lib/api';
-import { Mail, Phone, Star, FileText, ChevronLeft, Loader2, Send, ChevronRight, X, BarChart3, MessageSquare, AlertTriangle } from 'lucide-react';
+import { Mail, Phone, FileText, ChevronLeft, Loader2, Send, ChevronRight, X, BarChart3, MessageSquare, AlertTriangle } from 'lucide-react';
 
 const PIPELINE_STAGES = ['Applied', 'Screening', 'Mock Interview', 'Founder Round', 'Technical', 'Offer', 'Rejected'] as const;
 
