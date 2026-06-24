@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { candidateApi } from '../lib/candidateApi';
-import { Loader2, Send, CheckCircle, Camera, Clock, AlertTriangle, CameraOff } from 'lucide-react';
+import { Loader2, Send, CheckCircle, Camera, Clock, AlertTriangle, CameraOff, LogOut } from 'lucide-react';
 
 interface Turn {
     role: 'agent' | 'candidate';
@@ -29,6 +29,7 @@ export const ChatInterview: React.FC<{ onComplete?: () => void }> = ({ onComplet
     // Proctoring
     const [violations, setViolations] = useState(0);
     const [showViolationAlert, setShowViolationAlert] = useState(false);
+    const [showExitConfirm, setShowExitConfirm] = useState(false);
     const violationAlertTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const streamRef = useRef<MediaStream | null>(null);
@@ -47,8 +48,13 @@ export const ChatInterview: React.FC<{ onComplete?: () => void }> = ({ onComplet
                     setTranscript(data.transcript || []);
                     setStage('done');
                 } else if (data.status === 'active' && (data.transcript || []).length > 0) {
+                    // Resume — skip camera gate, jump straight to chat
                     setTranscript(data.transcript);
                     if (data.expires_at) armTimer(data.expires_at);
+                    // Re-request camera silently for self-view
+                    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                        .then(stream => { streamRef.current = stream; setCameraOn(true); })
+                        .catch(() => {});
                     setStage('chat');
                 }
             })
@@ -57,6 +63,33 @@ export const ChatInterview: React.FC<{ onComplete?: () => void }> = ({ onComplet
         return () => teardown();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    // ── Fullscreen lock during live interview ──
+    useEffect(() => {
+        if (stage !== 'chat') return;
+        const el = document.documentElement;
+        el.requestFullscreen?.().catch(() => {});
+        const onFullscreenChange = () => {
+            if (!document.fullscreenElement && stage === 'chat') {
+                triggerViolation();
+                el.requestFullscreen?.().catch(() => {});
+            }
+        };
+        document.addEventListener('fullscreenchange', onFullscreenChange);
+        return () => document.removeEventListener('fullscreenchange', onFullscreenChange);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [stage]);
+
+    // ── Block browser back / close / refresh during interview ──
+    useEffect(() => {
+        if (stage !== 'chat') return;
+        const onBeforeUnload = (e: BeforeUnloadEvent) => {
+            e.preventDefault();
+            e.returnValue = '';
+        };
+        window.addEventListener('beforeunload', onBeforeUnload);
+        return () => window.removeEventListener('beforeunload', onBeforeUnload);
+    }, [stage]);
 
     useEffect(() => {
         scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
@@ -95,6 +128,16 @@ export const ChatInterview: React.FC<{ onComplete?: () => void }> = ({ onComplet
         setShowViolationAlert(true);
         if (violationAlertTimer.current) clearTimeout(violationAlertTimer.current);
         violationAlertTimer.current = setTimeout(() => setShowViolationAlert(false), 4000);
+    };
+
+    const handleExitRequest = () => setShowExitConfirm(true);
+
+    const confirmExit = async () => {
+        // Count as a heavy violation then finalize
+        setViolations(v => v + 5);
+        setShowExitConfirm(false);
+        if (document.fullscreenElement) await document.exitFullscreen().catch(() => {});
+        await finalize();
     };
 
     const teardown = () => {
@@ -300,6 +343,34 @@ export const ChatInterview: React.FC<{ onComplete?: () => void }> = ({ onComplet
                 </div>
             )}
 
+            {/* Exit confirm modal */}
+            {showExitConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+                    <div className="bg-white rounded-2xl p-8 max-w-sm mx-4 shadow-2xl">
+                        <AlertTriangle className="w-8 h-8 text-black mb-4" />
+                        <h2 className="text-lg font-bold text-black mb-2">Exit interview?</h2>
+                        <p className="text-sm text-gray-500 leading-relaxed mb-6">
+                            Exiting early will end your interview immediately and count as a serious violation.
+                            This will significantly impact your score. This action cannot be undone.
+                        </p>
+                        <div className="flex space-x-3">
+                            <button
+                                onClick={() => setShowExitConfirm(false)}
+                                className="flex-1 border border-gray-200 rounded-xl py-2.5 text-sm font-semibold text-black hover:bg-gray-50 transition-colors"
+                            >
+                                Stay in interview
+                            </button>
+                            <button
+                                onClick={confirmExit}
+                                className="flex-1 bg-black text-white rounded-xl py-2.5 text-sm font-semibold hover:bg-gray-800 transition-colors"
+                            >
+                                Exit anyway
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Status bar */}
             <div className="flex-shrink-0 flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
                 <div className="flex items-center space-x-4">
@@ -314,13 +385,24 @@ export const ChatInterview: React.FC<{ onComplete?: () => void }> = ({ onComplet
                         </span>
                     )}
                 </div>
-                {stage !== 'done' && secondsLeft != null && (
-                    <div className={`flex items-center px-3 py-1.5 rounded-lg border text-sm font-mono font-bold ${
-                        urgent ? 'border-black bg-black text-white' : 'border-gray-200 text-gray-700'
-                    }`}>
-                        <Clock className="w-3.5 h-3.5 mr-1.5" />{fmt(secondsLeft)}
-                    </div>
-                )}
+                <div className="flex items-center space-x-3">
+                    {stage !== 'done' && secondsLeft != null && (
+                        <div className={`flex items-center px-3 py-1.5 rounded-lg border text-sm font-mono font-bold ${
+                            urgent ? 'border-black bg-black text-white' : 'border-gray-200 text-gray-700'
+                        }`}>
+                            <Clock className="w-3.5 h-3.5 mr-1.5" />{fmt(secondsLeft)}
+                        </div>
+                    )}
+                    {stage !== 'done' && (
+                        <button
+                            onClick={handleExitRequest}
+                            className="flex items-center text-xs font-semibold text-gray-400 hover:text-black transition-colors px-2 py-1.5 rounded-lg hover:bg-gray-100"
+                            title="Exit interview"
+                        >
+                            <LogOut className="w-3.5 h-3.5 mr-1" /> Exit
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Self-view camera */}

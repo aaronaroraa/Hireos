@@ -4,7 +4,7 @@ import { candidateApi } from '../lib/candidateApi';
 import { ChatInterview } from './ChatInterview';
 import { Loader2, FileText, Circle, CheckCircle2, UploadCloud, Check } from 'lucide-react';
 
-type Tab = 'overview' | 'profile' | 'timeline' | 'schedule' | 'messages' | 'settings' | 'about';
+type Tab = 'overview' | 'profile' | 'timeline' | 'schedule' | 'settings' | 'about';
 
 interface Me {
     candidate_name: string;
@@ -24,7 +24,6 @@ const NAV: { key: Tab; label: string; group: 'workspace' | 'account' }[] = [
     { key: 'profile', label: 'Profile', group: 'workspace' },
     { key: 'timeline', label: 'Timeline', group: 'workspace' },
     { key: 'schedule', label: 'Schedule', group: 'workspace' },
-    { key: 'messages', label: 'Messages', group: 'workspace' },
     { key: 'settings', label: 'Settings', group: 'account' },
     { key: 'about', label: 'About', group: 'account' },
 ];
@@ -136,7 +135,6 @@ export const CandidatePortal: React.FC = () => {
                         {active === 'profile' && <ProfileTab />}
                         {active === 'timeline' && <TimelineTab />}
                         {active === 'schedule' && <ScheduleTab me={me} />}
-                        {active === 'messages' && <MessagesTab agentName={me.agent_name} />}
                         {active === 'settings' && <SettingsTab me={me} />}
                         {active === 'about' && <AboutTab me={me} />}
                     </div>
@@ -411,44 +409,6 @@ const ScheduleTab: React.FC<{ me: Me }> = ({ me }) => {
     );
 };
 
-// ── Messages ──────────────────────────────────────────────────────────────────
-
-const MessagesTab: React.FC<{ agentName: string }> = ({ agentName }) => {
-    const [msgs, setMsgs] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    useEffect(() => {
-        candidateApi.get('/candidate/messages').then(({ data }) => setMsgs(data)).catch(() => {}).finally(() => setLoading(false));
-    }, []);
-    if (loading) return <Loader2 className="w-5 h-5 animate-spin text-gray-400" />;
-
-    return (
-        <div>
-            <h1 className="text-3xl font-display font-bold text-black mb-1">Messages</h1>
-            <p className="text-sm text-gray-500 mb-8">Your thread with {agentName}.</p>
-            {msgs.length === 0 ? (
-                <div className="card p-8 text-center text-sm text-gray-400">No messages yet.</div>
-            ) : (
-                <div className="space-y-5">
-                    {msgs.map((m, i) => (
-                        <div key={i} className={`flex ${m.sender === 'candidate' ? 'justify-end' : 'justify-start'}`}>
-                            <div className="max-w-[80%]">
-                                {m.sender === 'agent' && (
-                                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1">{agentName}</p>
-                                )}
-                                <div className={`text-sm leading-relaxed rounded-2xl px-4 py-3 ${
-                                    m.sender === 'candidate' ? 'bg-black text-white' : 'bg-gray-100 text-black'
-                                }`}>
-                                    {m.body}
-                                </div>
-                                <p className="text-[10px] font-mono text-gray-400 mt-1">{fmtDate(m.at)}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
-};
 
 // ── Settings ──────────────────────────────────────────────────────────────────
 
