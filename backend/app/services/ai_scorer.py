@@ -13,7 +13,7 @@ def _get_client() -> OpenAI | None:
     """Lazy-initialize OpenAI client from config."""
     if not settings.OPENAI_API_KEY or "placeholder" in settings.OPENAI_API_KEY.lower():
         return None
-    return OpenAI(api_key=settings.OPENAI_API_KEY)
+    return OpenAI(api_key=settings.OPENAI_API_KEY, base_url=settings.OPENAI_BASE_URL)
 
 
 def _sanitize_input(text: str, max_length: int = 500) -> str:
